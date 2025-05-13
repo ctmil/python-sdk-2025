@@ -39,8 +39,22 @@ class RESTResponse(io.IOBase):
         self.data = resp.data
 
     def getheaders(self):
-        """Returns a dictionary of the response headers."""
-        return self.urllib3_response.getheaders()
+        """
+        Return headers in a version-compatible way.
+        Works with urllib3 >=1.26 and also legacy versions if needed.
+        """
+        if hasattr(self.urllib3_response, 'headers'):
+            # Newer urllib3 (headers is an HTTPHeaderDict)
+            return dict(self.urllib3_response.headers)
+        elif hasattr(self.urllib3_response, 'getheaders'):
+            # Legacy compatibility (very rare in urllib3 but kept for safety)
+            return self.urllib3_response.getheaders()
+        else:
+            # Fallback: try accessing raw headers
+            try:
+                return dict(self.urllib3_response.info())
+            except Exception:
+                return {}
 
     def getheader(self, name, default=None):
         """Returns a given response header."""
