@@ -64,7 +64,7 @@ class RESTResponse(io.IOBase):
         """
         if hasattr(self.urllib3_response, 'headers'):
             # Newer urllib3 (headers is an HTTPHeaderDict)
-            return dict(self.urllib3_response.headers.get(name, default))
+            return self.urllib3_response.headers.get(name, default)
         elif hasattr(self.urllib3_response, 'getheaders'):
             # Legacy compatibility (very rare in urllib3 but kept for safety)
             return self.urllib3_response.getheader(name, default)
